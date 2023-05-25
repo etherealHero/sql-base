@@ -110,18 +110,64 @@ go
 -- 7. Вывести список всех касс со следующем столбцами: [Аптека], [Адрес аптеки с городом],
 -- [Номер кассы], [Описание кассы]
 -- Предоставить select запрос и результат.
+select
+  drug.name as 'Аптека',
+  (select cities.name from cities where cities.id = drug.city_id) + ', ' + drug.address as 'Адрес аптеки с городом',
+  cash.number as 'Номер кассы',
+  cash.[description] as 'Описание кассы'
+from cashdesk as cash
+  inner join drugstores as drug on drug.id = cash.drugstore_id
 
 -- 8. Вывести список всех аптек, в которых более 3х касс, со столбцами [Аптека], [Город], [Адрес
 -- аптеки]
 -- Предоставить select запрос и результат.
+-- select
+--   drug.name as 'Аптека',
+--   city.name as 'Город',
+--   drug.address as 'Адрес аптеки'
+--   -- count(cash.drugstore_id) as 'count'
+-- from drugstores as drug
+--   inner join cashdesk as cash on cash.drugstore_id = drug.id
+--   inner join cities as city on city.id = drug.city_id
+-- group by drug.name, drug.address, city.name
+-- having count(cash.drugstore_id) > 3
 
 -- 9. Вывести список всех аптек, расположенных по улице Карла Маркса, со столбцами [Аптека],
 -- [Город], [Адрес аптеки], [Кол-во касс]
 -- Предоставить select запрос и результат.
+-- select 
+--   drug.name as 'Аптека',
+--   city.name as 'Город',
+--   drug.address as 'Адрес аптеки',
+--   count(cash.id) as 'Кол-во касс'
+-- from drugstores as drug
+--   inner join cities as city on city.id = drug.city_id
+--   inner join cashdesk as cash on cash.drugstore_id = drug.id
+-- where drug.address like 'ул. Карла Маркса%'
+-- group by city.name, drug.address, drug.name
+-- order by drug.name asc
 
 -- 10. Вывести список всех аптек, в которых есть кассы с описанием «Рецептура», со столбцами
 -- [Аптека], [Город], [Адрес аптеки], [Кол-во касс с рецептурой]
 -- Предоставить select запрос и результат.
+-- select 
+--   drug.name as 'Аптека',
+--   city.name as 'Город',
+--   drug.address as 'Адрес',
+--   count(cash.id) as 'Кол-во касс с рецептурой'
+-- from drugstores as drug
+--   inner join cities as city on city.id = drug.city_id
+--   inner join cashdesk as cash on cash.drugstore_id = drug.id
+-- where cash.[description] like 'рецептура %'
+-- group by drug.name, city.name, drug.address
 
 -- 11. Вывести список городов, в которых общее кол-во касс превышает 8, со столбцом [Город]
 -- Предоставить select запрос и результат.
+-- select 
+--   city.name as 'Город'
+--   -- count(cashdesk.id)
+-- from cities as city
+--   inner join drugstores on drugstores.city_id = city.id
+--   inner join cashdesk on cashdesk.drugstore_id = drugstores.id
+-- group by city.name
+-- having count(cashdesk.id) > 8
