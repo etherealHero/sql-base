@@ -29,11 +29,11 @@ choco install mssqlservermanagementstudio2014express
    3. pick all tables and press Add
 
 <div align="center">
-<img src="./src/img/DB_diagram.png" height="auto" width="70%" alt="preview"  />
+<img src="./src/img/DB_diagram.PNG" height="auto" width="70%" alt="preview"  />
 <p>Diagram result</p>
 </div>
 
 <div align="center">
-<img src="./src/img/obj_tree.png" height="auto" width="40%" alt="preview"  />
+<img src="./src/img/obj_tree.PNG" height="auto" width="40%" alt="preview"  />
 <p>Object tree</p>
 </div>
