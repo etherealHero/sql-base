@@ -13,12 +13,23 @@ use PharmDB
 -- remove constraints
 
 -- COMMENT ON FIRST EXECUTE 
-if exists (select * from sysobjects 
-  where name = 'drugstores' and xtype = 'U') 
-    alter table drugstores drop constraint FK_drugstores_cities
-if exists (select * from sysobjects 
-  where name = 'cashdesk' and xtype = 'U') 
-    alter table cashdesk drop constraint FK_cashdesk_drugstores
+  if exists (select * from sysobjects 
+    where name = 'drugstores' and xtype = 'U') 
+      alter table drugstores drop constraint FK_drugstores_cities
+  if exists (select * from sysobjects 
+    where name = 'cashdesk' and xtype = 'U') 
+      alter table cashdesk drop constraint FK_cashdesk_drugstores
+
+  if exists (select name from sysobjects 
+    where name = 'task7_cashdesks') drop view task7_cashdesks
+  if exists (select name from sysobjects 
+    where name = 'task8_drugstores_where_cashcount_gt3') drop view task8_drugstores_where_cashcount_gt3
+  if exists (select name from sysobjects 
+    where name = 'task9_drugstores_onMarksStreet') drop view task9_drugstores_onMarksStreet
+  if exists (select name from sysobjects 
+    where name = 'task10_drugstores_with_recipe') drop view task10_drugstores_with_recipe
+  if exists (select name from sysobjects 
+    where name = 'task11_cities_where_cash_gt8') drop view task11_cities_where_cash_gt8
 -- /COMMENT ON FIRST EXECUTE
 
 -- drop tables
@@ -110,6 +121,7 @@ go
 -- 7. Вывести список всех касс со следующем столбцами: [Аптека], [Адрес аптеки с городом],
 -- [Номер кассы], [Описание кассы]
 -- Предоставить select запрос и результат.
+create view task7_cashdesks as
 select
   drug.name as 'Аптека',
   (select cities.name from cities where cities.id = drug.city_id) + ', ' + drug.address as 'Адрес аптеки с городом',
@@ -118,56 +130,84 @@ select
 from cashdesk as cash
   inner join drugstores as drug on drug.id = cash.drugstore_id
 
+go
+
+-- select * from task7_cashdesks
+-- go
+
 -- 8. Вывести список всех аптек, в которых более 3х касс, со столбцами [Аптека], [Город], [Адрес
 -- аптеки]
 -- Предоставить select запрос и результат.
--- select
---   drug.name as 'Аптека',
---   city.name as 'Город',
---   drug.address as 'Адрес аптеки'
---   -- count(cash.drugstore_id) as 'count'
--- from drugstores as drug
---   inner join cashdesk as cash on cash.drugstore_id = drug.id
---   inner join cities as city on city.id = drug.city_id
--- group by drug.name, drug.address, city.name
--- having count(cash.drugstore_id) > 3
+create view task8_drugstores_where_cashcount_gt3 as
+select
+  drug.name as 'Аптека',
+  city.name as 'Город',
+  drug.address as 'Адрес аптеки'
+  -- count(cash.drugstore_id) as 'count'
+from drugstores as drug
+  inner join cashdesk as cash on cash.drugstore_id = drug.id
+  inner join cities as city on city.id = drug.city_id
+group by drug.name, drug.address, city.name
+having count(cash.drugstore_id) > 3
+
+go
+
+-- select * from task8_drugstores_where_cashcount_gt3
+-- go
 
 -- 9. Вывести список всех аптек, расположенных по улице Карла Маркса, со столбцами [Аптека],
 -- [Город], [Адрес аптеки], [Кол-во касс]
 -- Предоставить select запрос и результат.
--- select 
---   drug.name as 'Аптека',
---   city.name as 'Город',
---   drug.address as 'Адрес аптеки',
---   count(cash.id) as 'Кол-во касс'
--- from drugstores as drug
---   inner join cities as city on city.id = drug.city_id
---   inner join cashdesk as cash on cash.drugstore_id = drug.id
--- where drug.address like 'ул. Карла Маркса%'
--- group by city.name, drug.address, drug.name
--- order by drug.name asc
+create view task9_drugstores_onMarksStreet as
+select 
+  drug.name as 'Аптека',
+  city.name as 'Город',
+  drug.address as 'Адрес аптеки',
+  count(cash.id) as 'Кол-во касс'
+from drugstores as drug
+  inner join cities as city on city.id = drug.city_id
+  inner join cashdesk as cash on cash.drugstore_id = drug.id
+where drug.address like 'ул. Карла Маркса%'
+group by city.name, drug.address, drug.name
+
+go
+
+-- select * from task9_drugstores_onMarksStreet
+-- go
 
 -- 10. Вывести список всех аптек, в которых есть кассы с описанием «Рецептура», со столбцами
 -- [Аптека], [Город], [Адрес аптеки], [Кол-во касс с рецептурой]
 -- Предоставить select запрос и результат.
--- select 
---   drug.name as 'Аптека',
---   city.name as 'Город',
---   drug.address as 'Адрес',
---   count(cash.id) as 'Кол-во касс с рецептурой'
--- from drugstores as drug
---   inner join cities as city on city.id = drug.city_id
---   inner join cashdesk as cash on cash.drugstore_id = drug.id
--- where cash.[description] like 'рецептура %'
--- group by drug.name, city.name, drug.address
+create view task10_drugstores_with_recipe as
+select 
+  drug.name as 'Аптека',
+  city.name as 'Город',
+  drug.address as 'Адрес',
+  count(cash.id) as 'Кол-во касс с рецептурой'
+from drugstores as drug
+  inner join cities as city on city.id = drug.city_id
+  inner join cashdesk as cash on cash.drugstore_id = drug.id
+where cash.[description] like 'рецептура %'
+group by drug.name, city.name, drug.address
+
+go
+
+-- select * from task10_drugstores_with_recipe
+-- go
 
 -- 11. Вывести список городов, в которых общее кол-во касс превышает 8, со столбцом [Город]
 -- Предоставить select запрос и результат.
--- select 
---   city.name as 'Город'
---   -- count(cashdesk.id)
--- from cities as city
---   inner join drugstores on drugstores.city_id = city.id
---   inner join cashdesk on cashdesk.drugstore_id = drugstores.id
--- group by city.name
--- having count(cashdesk.id) > 8
+create view task11_cities_where_cash_gt8 as
+select 
+  city.name as 'Город'
+  -- count(cashdesk.id)
+from cities as city
+  inner join drugstores on drugstores.city_id = city.id
+  inner join cashdesk on cashdesk.drugstore_id = drugstores.id
+group by city.name
+having count(cashdesk.id) > 8
+
+go
+
+-- select * from task11_cities_where_cash_gt8
+-- go
